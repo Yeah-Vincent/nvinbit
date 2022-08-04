@@ -17,6 +17,11 @@ def on_pin_pressed_p0():
         USERS_WORDS_ON_SCREEN = ["" + USERS_WORDS_ON_SCREEN[0] + 当前选择字]
 input.on_pin_pressed(TouchPin.P0, on_pin_pressed_p0)
 
+def 系统显示字符(要显示的字符: str, 显示的位置x: number, 显示的位置y: number):
+    global USERS_WORDS_ON_SCREEN
+    OLED12864_I2C.show_string(显示的位置x, 显示的位置y, 要显示的字符, 1)
+    USERS_WORDS_ON_SCREEN = ["" + USERS_WORDS_ON_SCREEN[0] + 要显示的字符]
+
 def on_button_pressed_a():
     global 当前选择字
     if USERS_WORDS_ON_SCREEN[0] == "":
@@ -33,6 +38,11 @@ def on_button_pressed_a():
             1)
         当前选择字 = " "
 input.on_button_pressed(Button.A, on_button_pressed_a)
+
+def 系统显示数字(显示的数字: number, 位置x: number, 位置y: number):
+    global USERS_WORDS_ON_SCREEN
+    OLED12864_I2C.show_number(位置x, 位置y, 显示的数字, 1)
+    USERS_WORDS_ON_SCREEN = ["" + USERS_WORDS_ON_SCREEN[0] + ("" + str(显示的数字))]
 
 def on_pin_pressed_p2():
     global 次数, 当前选择字
@@ -59,28 +69,56 @@ def on_pin_pressed_p2():
 input.on_pin_pressed(TouchPin.P2, on_pin_pressed_p2)
 
 def on_button_pressed_b():
-    global 预备y位置, 用户光标y位置User_Type_Locationy, 判断按钮第几遍
+    global 临时, 用户光标y位置User_Type_Locationy, 用户光标x位置User_Type_Locationx, 判断按钮第几遍, 循环次数, 临时a, 临时b
     if 判断按钮第几遍 == 0:
-        if USERS_WORDS_ON_SCREEN[0].char_at(len(USERS_WORDS_ON_SCREEN[0])) == "/":
-            if 用户光标y位置User_Type_Locationy == 4:
-                OLED12864_I2C.clear()
-                OLED12864_I2C.show_string(0, 0, "vin:bit 0.0.1", 270)
-                预备y位置 = 1
-            else:
-                预备y位置 = 用户光标y位置User_Type_Locationy + 1
-            if USERS_WORDS_ON_SCREEN[0].substr(len(USERS_WORDS_ON_SCREEN[0]) - 2,
-                len(USERS_WORDS_ON_SCREEN[0])) == "add":
-                OLED12864_I2C.show_string(0, 预备y位置, "/", 1)
-                用户光标y位置User_Type_Locationy += 1
+        if USERS_WORDS_ON_SCREEN[0].char_at(len(USERS_WORDS_ON_SCREEN[0]) - 1) == "/":
+            OLED12864_I2C.clear()
+            OLED12864_I2C.show_string(0, 0, "vin:bit 0.0.1", 270)
+            OLED12864_I2C.show_string(0, 1, USERS_WORDS_ON_SCREEN[0], 1)
+            临时 = USERS_WORDS_ON_SCREEN[0].substr(len(USERS_WORDS_ON_SCREEN[0]) - 3,
+                len(USERS_WORDS_ON_SCREEN[0]) - 1)
+            if 临时 == "add" or (临时 == "subtract" or (临时 == "multiply" or 临时 == "divide")):
+                if 用户光标x位置User_Type_Locationx == 12:
+                    if 用户光标y位置User_Type_Locationy == 4:
+                        系统显示字符(":", 0, 1)
+                    else:
+                        用户光标y位置User_Type_Locationy += 1
+                        用户光标x位置User_Type_Locationx = 0
+                        系统显示字符(":", 用户光标x位置User_Type_Locationx, 用户光标y位置User_Type_Locationy)
+                else:
+                    系统显示字符(":",
+                        用户光标x位置User_Type_Locationx + 1,
+                        用户光标y位置User_Type_Locationy)
                 判断按钮第几遍 = 1
             else:
                 pass
         else:
-            用户光标y位置User_Type_Locationy += 1
+            images.create_image("""
+                # # . # #
+                                # # . # #
+                                . . . . .
+                                . # # # .
+                                # . . . #
+            """).scroll_image(0, 500)
     else:
-        OLED12864_I2C.show_number(0, 0, int("USERS_WORDS_ON_SCREEN[0].char_at(len(USERS_WORDS_ON_SCREEN[0]) - 2)") -- int("USERS_WORDS_ON_SCREEN[0].char_at(len(USERS_WORDS_ON_SCREEN[0])"), 1)
-        if USERS_WORDS_ON_SCREEN[0].char_at(len(USERS_WORDS_ON_SCREEN[0]) - 2) == USERS_WORDS_ON_SCREEN[0].char_at(len(USERS_WORDS_ON_SCREEN[0])):
-            pass
+        循环次数 = 1
+        for index in range(26):
+            if parse_float(_26个字母与符号[循环次数]) == int(USERS_WORDS_ON_SCREEN[0].char_at(len(USERS_WORDS_ON_SCREEN[0]) - 3)):
+                临时a = 循环次数
+            循环次数 += 1
+        循环次数 = 1
+        for index2 in range(26):
+            if parse_float(_26个字母与符号[循环次数]) == int(USERS_WORDS_ON_SCREEN[0].char_at(len(USERS_WORDS_ON_SCREEN[0]) - 1)):
+                临时b = 循环次数
+            循环次数 += 1
+        if 临时 == "add":
+            系统显示数字(临时a + 临时b, 0, 用户光标y位置User_Type_Locationy + 1)
+        elif 临时 == "subtract":
+            系统显示数字(临时a - 临时b, 0, 用户光标y位置User_Type_Locationy + 1)
+        elif 临时 == "multiply":
+            系统显示数字(临时a * 临时b, 0, 用户光标y位置User_Type_Locationy + 1)
+        else:
+            系统显示数字(临时a / 临时b, 0, 用户光标y位置User_Type_Locationy + 1)
 input.on_button_pressed(Button.B, on_button_pressed_b)
 
 def on_pin_pressed_p1():
@@ -107,7 +145,10 @@ def on_pin_pressed_p1():
             当前选择字 = _26个字母与符号[次数]
 input.on_pin_pressed(TouchPin.P1, on_pin_pressed_p1)
 
-预备y位置 = 0
+临时b = 0
+临时a = 0
+循环次数 = 0
+临时 = ""
 当前选择字 = ""
 用户光标x位置User_Type_Locationx = 0
 用户光标y位置User_Type_Locationy = 0
